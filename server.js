@@ -102,11 +102,14 @@ app.post("/products",function(req,res,next){
     });
 
 
-
 app.get("/purchases",function(req,res,next){
-    let shop = +req.query.shop;
-      let product = +req.query.product;
+    let shop = req.query.shop;
+    if(shop){
+         shop = +req.query.shop.substring(2,3);
+    }
+      let product = req.query.product;
     let sort = req.query.sort;
+   
 
 
         let query = "Select * FROM purchases";
@@ -117,9 +120,19 @@ app.get("/purchases",function(req,res,next){
                 if(shop){
                     result.rows = result.rows.filter(st=>st.shopid===shop); 
                 }
-                if(product){
-                    result.rows = result.rows.filter(st=>st.productid===product); 
-                }
+                if(product)
+                    {
+                        product= product.split(',');
+                        let productArr = [];
+                          for(let i = 0; i<product.length;i++){
+                            productArr.push(parseInt(product[i].substring(2,3)));
+                          }
+                          result.rows= result.rows.filter(obj=>
+                            productArr.find(obj1=> obj1===obj.productid)
+                       );
+                       result.rows= result.rows;
+                      }
+                
                 
                 if(sort==="QtyAsc"){
                     result.rows.sort((p1,p2)=>p1.quantity-p2.quantity);
